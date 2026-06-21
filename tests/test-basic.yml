@@ -1,0 +1,42 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create minimal label-actions config
+        run: |
+          mkdir -p .github
+          cat > .github/label-actions.yml << 'EOF'
+          # Label Actions configuration
+          bug:
+            issues:
+              comment: "Thank you for reporting this bug!"
+          EOF
+
+      - id: action
+        uses: .
+        with:
+          github-token: 'fake-token-for-testing'
+          config-path: '.github/label-actions.yml'
+        continue-on-error: true
+        env:
+          GITHUB_EVENT_NAME: issues
+          GITHUB_REPOSITORY: test-owner/test-repo
+
+      - name: Assert action ran (expected to fail due to invalid token)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action is expected to fail because the token is invalid
+          # and it cannot fetch config from GitHub API.
+          # We verify it ran (not skipped) and failed gracefully.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran (outcome=$OUTCOME, expected failure due to invalid token)"

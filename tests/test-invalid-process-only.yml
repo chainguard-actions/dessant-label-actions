@@ -1,0 +1,36 @@
+name: Test invalid process-only value
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          github-token: 'fake-token-for-testing'
+          config-path: '.github/label-actions.yml'
+          process-only: 'invalid-value'
+        continue-on-error: true
+        env:
+          GITHUB_EVENT_NAME: issues
+          GITHUB_REPOSITORY: test-owner/test-repo
+
+      - name: Assert action failed due to invalid process-only value
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action should fail (not be skipped) when given an invalid process-only value.
+          # The Joi schema validation will reject 'invalid-value' and call setFailed.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run and fail"
+            exit 1
+          fi
+          if [ "$OUTCOME" = "success" ]; then
+            echo "FAIL: action succeeded with invalid process-only value, expected failure"
+            exit 1
+          fi
+          echo "PASS: action failed as expected with invalid process-only value (outcome=$OUTCOME)"

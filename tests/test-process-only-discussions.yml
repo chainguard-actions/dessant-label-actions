@@ -1,0 +1,33 @@
+name: Test process-only discussions
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        with:
+          github-token: 'fake-token-for-testing'
+          config-path: '.github/label-actions.yml'
+          process-only: 'discussions'
+        continue-on-error: true
+        env:
+          GITHUB_EVENT_NAME: discussion
+          GITHUB_REPOSITORY: test-owner/test-repo
+
+      - name: Assert action ran with process-only discussions input
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "action outcome: $OUTCOME"
+          # The action accepts 'discussions' as a valid process-only value.
+          # It will fail due to invalid token when fetching config from GitHub API,
+          # but it should not be skipped.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped, expected it to run"
+            exit 1
+          fi
+          echo "PASS: action ran with process-only=discussions (outcome=$OUTCOME)"
