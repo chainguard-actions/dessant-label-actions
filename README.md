@@ -9,6 +9,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
 | v4.0.1 | [`v4.0.1`](https://github.com/chainguard-actions/dessant-label-actions/tree/v4.0.1) | [`102faf4`](https://github.com/dessant/label-actions/commit/102faf474a544be75fbaf4df54e73d3c515a0e65) |
+| v5.0.1 | [`v5.0.1`](https://github.com/chainguard-actions/dessant-label-actions/tree/v5.0.1) | [`e86a175`](https://github.com/dessant/label-actions/commit/e86a1759593319d037dab008f3124abeb786cdf9) |
 
 ## Privacy
 
