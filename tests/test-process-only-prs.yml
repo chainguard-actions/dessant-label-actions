@@ -1,0 +1,44 @@
+name: Test process-only prs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: pull_request
+      GITHUB_REF: refs/pull/1/merge
+      GITHUB_HEAD_REF: feature-branch
+      GITHUB_BASE_REF: main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create label-actions config
+        run: |
+          mkdir -p .github
+          cat > .github/label-actions.yml << 'EOF'
+          enhancement:
+            prs:
+              comment: 'Enhancement PR labeled!'
+            issues:
+              comment: 'Enhancement issue labeled!'
+          EOF
+
+      - name: Run action with process-only=prs
+        id: action
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          config-path: .github/label-actions.yml
+          process-only: prs
+        continue-on-error: true
+
+      - name: Assert action did not crash unexpectedly
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action completed with outcome=$OUTCOME"

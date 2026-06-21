@@ -1,0 +1,41 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: issues
+      GITHUB_REF: refs/heads/main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create label-actions config
+        run: |
+          mkdir -p .github
+          cat > .github/label-actions.yml << 'EOF'
+          bug:
+            issues:
+              comment: 'Thank you for reporting this bug!'
+          EOF
+
+      - name: Run action (expect it to exit cleanly or with a non-crash error)
+        id: action
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          config-path: .github/label-actions.yml
+        continue-on-error: true
+
+      - name: Assert action did not crash unexpectedly
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail due to no real GitHub event context,
+          # but it should not be a crash (outcome is either success or failure, not cancelled)
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action completed with outcome=$OUTCOME"

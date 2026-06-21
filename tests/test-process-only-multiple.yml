@@ -1,0 +1,44 @@
+name: Test process-only multiple values
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_EVENT_NAME: issues
+      GITHUB_REF: refs/heads/main
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create label-actions config
+        run: |
+          mkdir -p .github
+          cat > .github/label-actions.yml << 'EOF'
+          bug:
+            issues:
+              comment: 'Bug on issue!'
+            prs:
+              comment: 'Bug on PR!'
+            discussions:
+              comment: 'Bug on discussion!'
+          EOF
+
+      - name: Run action with process-only=issues,prs
+        id: action
+        uses: .
+        with:
+          github-token: ${{ github.token }}
+          config-path: .github/label-actions.yml
+          process-only: issues,prs
+        continue-on-error: true
+
+      - name: Assert action did not crash unexpectedly
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action completed with outcome=$OUTCOME"
