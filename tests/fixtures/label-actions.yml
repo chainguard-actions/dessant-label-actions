@@ -1,0 +1,9 @@
+# Configuration for Label Actions - https://github.com/dessant/label-actions
+# Test fixture file
+
+test-label:
+  issues:
+    comment: 'Test comment for issues'
+    close: false
+  prs:
+    comment: 'Test comment for pull requests'
