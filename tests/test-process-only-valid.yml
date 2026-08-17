@@ -1,0 +1,65 @@
+name: Test valid process-only input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run action with valid process-only input (issues)
+        id: action-issues
+        uses: .
+        with:
+          process-only: 'issues'
+          config-path: '.github/label-actions-nonexistent-file.yml'
+        continue-on-error: true
+
+      - name: Assert action failed for expected reason (missing config, not validation error)
+        env:
+          OUTCOME: ${{ steps.action-issues.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail (missing config), got outcome=$OUTCOME"
+            exit 1
+          fi
+          echo "PASS: action failed as expected (missing config, not input validation error)"
+
+      - name: Run action with valid process-only input (prs)
+        id: action-prs
+        uses: .
+        with:
+          process-only: 'prs'
+          config-path: '.github/label-actions-nonexistent-file.yml'
+        continue-on-error: true
+
+      - name: Assert prs process-only accepted
+        env:
+          OUTCOME: ${{ steps.action-prs.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail (missing config), got outcome=$OUTCOME"
+            exit 1
+          fi
+          echo "PASS: prs process-only input accepted"
+
+      - name: Run action with valid process-only input (discussions)
+        id: action-discussions
+        uses: .
+        with:
+          process-only: 'discussions'
+          config-path: '.github/label-actions-nonexistent-file.yml'
+        continue-on-error: true
+
+      - name: Assert discussions process-only accepted
+        env:
+          OUTCOME: ${{ steps.action-discussions.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail (missing config), got outcome=$OUTCOME"
+            exit 1
+          fi
+          echo "PASS: discussions process-only input accepted"

@@ -1,0 +1,9 @@
+# Label Actions configuration fixture for testing
+'bug':
+  comment: 'This issue has been labeled as a bug.'
+  label:
+    - 'needs-triage'
+
+'wontfix':
+  close: true
+  comment: 'This issue has been closed as wontfix.'

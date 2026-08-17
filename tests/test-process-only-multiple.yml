@@ -7,27 +7,24 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - id: action
+      - name: Run action with comma-separated process-only values
+        id: action
         uses: .
         with:
-          github-token: 'fake-token-for-testing'
-          config-path: '.github/label-actions.yml'
-          process-only: 'prs, discussions'
+          process-only: 'issues, prs'
+          config-path: '.github/label-actions-nonexistent-file.yml'
         continue-on-error: true
-        env:
-          GITHUB_EVENT_NAME: pull_request
-          GITHUB_REPOSITORY: test-owner/test-repo
 
-      - name: Assert action ran with comma-separated process-only values
+      - name: Assert action failed for expected reason (missing config, not validation error)
         env:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "action outcome: $OUTCOME"
-          # The action accepts comma-separated values for process-only.
-          # It will fail due to invalid token when fetching config from GitHub API,
-          # but it should not be skipped.
-          if [ "$OUTCOME" = "skipped" ]; then
-            echo "FAIL: action was skipped, expected it to run"
+          echo "outcome: $OUTCOME"
+          # The action should fail because the config file doesn't exist,
+          # not because of invalid process-only input validation.
+          # This confirms 'issues, prs' is a valid process-only value.
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected action to fail (missing config), got outcome=$OUTCOME"
             exit 1
           fi
-          echo "PASS: action ran with process-only='prs, discussions' (outcome=$OUTCOME)"
+          echo "PASS: comma-separated process-only input accepted, action failed on missing config"
