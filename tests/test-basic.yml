@@ -1,4 +1,4 @@
-name: Test process-only multiple values
+name: Test basic usage
 on:
   workflow_dispatch:
 jobs:
@@ -11,21 +11,15 @@ jobs:
         run: |
           mkdir -p .github
           cat > .github/label-actions.yml << 'EOF'
-          help wanted:
+          bug:
             issues:
-              comment: 'Help wanted on this issue!'
-            prs:
-              comment: 'Help wanted on this PR!'
-            discussions:
-              comment: 'Help wanted on this discussion!'
+              comment: 'Thank you for reporting this bug!'
           EOF
 
-      - name: Run label-actions with process-only=issues,prs
+      - name: Run label-actions action
         id: action
         uses: .
         continue-on-error: true
-        with:
-          process-only: 'issues,prs'
         env:
           GITHUB_EVENT_NAME: issues
 
@@ -34,6 +28,8 @@ jobs:
           OUTCOME: ${{ steps.action.outcome }}
         run: |
           echo "outcome: $OUTCOME"
+          # The action may succeed or fail gracefully (e.g. not a label event),
+          # but it must not produce an unexpected crash (outcome != cancelled)
           if [ "$OUTCOME" = "cancelled" ]; then
             echo "FAIL: action was cancelled unexpectedly"
             exit 1

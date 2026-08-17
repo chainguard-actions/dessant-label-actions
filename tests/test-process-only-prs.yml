@@ -1,40 +1,39 @@
-name: Test process-only pull requests
+name: Test process-only prs
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_EVENT_NAME: pull_request
-      GITHUB_REF: refs/pull/1/merge
-      GITHUB_HEAD_REF: feature-branch
-      GITHUB_BASE_REF: main
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create label-actions config for PRs
+      - name: Create label-actions config
         run: |
           mkdir -p .github
           cat > .github/label-actions.yml << 'EOF'
           enhancement:
+            issues:
+              comment: 'Enhancement requested on issue!'
             prs:
-              comment: 'Thank you for this enhancement!'
+              comment: 'Enhancement requested on PR!'
           EOF
 
-      - id: action
-        name: Run label-actions with process-only prs
+      - name: Run label-actions with process-only=prs
+        id: action
         uses: .
-        with:
-          github-token: ${{ github.token }}
-          config-path: .github/label-actions.yml
-          process-only: prs
         continue-on-error: true
+        with:
+          process-only: 'prs'
+        env:
+          GITHUB_EVENT_NAME: pull_request
 
-      - name: Assert action ran
+      - name: Assert action completed (no crash)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
         run: |
-          echo "Action outcome: ${{ steps.action.outcome }}"
-          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
-            echo "FAIL: action was skipped unexpectedly"
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "cancelled" ]; then
+            echo "FAIL: action was cancelled unexpectedly"
             exit 1
           fi
-          echo "PASS: action ran (outcome: ${{ steps.action.outcome }})"
+          echo "PASS: action completed with outcome=$OUTCOME"

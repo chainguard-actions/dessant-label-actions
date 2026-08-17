@@ -1,4 +1,4 @@
-name: Test process-only multiple values
+name: Test process-only discussions
 on:
   workflow_dispatch:
 jobs:
@@ -11,23 +11,19 @@ jobs:
         run: |
           mkdir -p .github
           cat > .github/label-actions.yml << 'EOF'
-          help wanted:
-            issues:
-              comment: 'Help wanted on this issue!'
-            prs:
-              comment: 'Help wanted on this PR!'
+          question:
             discussions:
-              comment: 'Help wanted on this discussion!'
+              comment: 'Thank you for your question!'
           EOF
 
-      - name: Run label-actions with process-only=issues,prs
+      - name: Run label-actions with process-only=discussions
         id: action
         uses: .
         continue-on-error: true
         with:
-          process-only: 'issues,prs'
+          process-only: 'discussions'
         env:
-          GITHUB_EVENT_NAME: issues
+          GITHUB_EVENT_NAME: discussion
 
       - name: Assert action completed (no crash)
         env:
