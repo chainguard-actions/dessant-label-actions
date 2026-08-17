@@ -12,9 +12,9 @@ inputs:
     description: 'Process label events only for issues, pull requests or discussions, value must be a comma separated list, list items must be one of `issues`, `prs` or `discussions`'
     default: ''
 runs:
+  pre: chainguard-phonehome.js
   using: 'node20'
   main: 'dist/index.js'
-  pre: chainguard-phonehome.js
 branding:
   icon: 'tag'
   color: 'purple'

@@ -1,0 +1,19 @@
+bug:
+  issues:
+    comment: 'Thank you for reporting this bug!'
+  prs:
+    comment: 'This PR has been labeled as a bug.'
+enhancement:
+  prs:
+    comment: 'Thank you for this enhancement PR!'
+  issues:
+    comment: 'Thank you for this enhancement request!'
+question:
+  discussions:
+    comment: 'Thank you for starting this discussion!'
+  issues:
+    comment: 'Thank you for your question!'
+wontfix:
+  issues:
+    comment: 'This issue will not be fixed.'
+    close: true
