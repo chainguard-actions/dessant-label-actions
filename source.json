@@ -4,8 +4,13 @@
   "version": "v5.0.3",
   "commit_sha": "65225c179d3b2502f6eda7b3d15101a3f412366b",
   "url": "https://github.com/dessant/label-actions",
-  "policy_sha": "d636be7e43ef829af6e853da6b3c7566db9f72fe",
+  "policy_sha": "374911c4be584df24e6da57af2d990570ef0f859",
   "test_policy_sha": "843adf9e4b8f85d0c08b27b9d0b09dd094b54702",
   "test_agent_version": "2",
-  "harden_agent_version": "2"
+  "harden_agent_version": "2",
+  "dist_artifact": {
+    "gcs_uri": "gs://patch-actions-node-artifacts/dist-artifacts/dessant/label-actions/v5.0.3/sha256-1a983d32fd6201ea1b3c06d79cbd699d0b441556110d71b99d3ac8602e619a40.tar.gz",
+    "sha256": "1a983d32fd6201ea1b3c06d79cbd699d0b441556110d71b99d3ac8602e619a40",
+    "size_bytes": 435936
+  }
 }
